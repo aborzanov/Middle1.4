@@ -8,6 +8,9 @@ private:
 
 public:
 	Wheel(float diameter) : diameter(diameter) {}
+	Wheel(const Wheel& wheel) = delete;
+	Wheel(Wheel&& wheel) noexcept : diameter(wheel.diameter) {}
+
 	float getDiameter() const { return diameter; }
 };
 
@@ -19,6 +22,9 @@ private:
 
 public:
 	Engine(float power) : power(power) { }
+	Engine(const Engine& engine) = delete;
+	Engine(Engine&& engine) noexcept : power(engine.power) {}
+
 	float getPower() const { return power; }
 };
 
@@ -90,9 +96,10 @@ protected:
 
 public:
 	Bicycle(Wheel w1, Wheel w2, float clearance)
-		: RoadVehicle(clearance),
-		wheels{ w1, w2 }
+		: RoadVehicle(clearance)
 	{
+		wheels.push_back(std::move(w1));
+		wheels.push_back(std::move(w2));
 	}
 
 };
@@ -121,9 +128,12 @@ protected:
 public:
 	Car(Engine engine, Wheel w1, Wheel w2, Wheel w3, Wheel w4, float clearance)
 		: RoadVehicle(clearance),
-		engine(engine),
-		wheels{ w1, w2, w3, w4 }
+		engine(std::move(engine))
 	{
+		wheels.push_back(std::move(w1));
+		wheels.push_back(std::move(w2));
+		wheels.push_back(std::move(w3));
+		wheels.push_back(std::move(w4));
 	}
 
 	friend float getHighestPower(const std::vector<Vehicle*>& v);
@@ -152,8 +162,7 @@ float getHighestPower(const std::vector<Vehicle*>& v)
 
 int main()
 {
-
-	Car c(Engine(1), Wheel(1), Wheel(2), Wheel(3), Wheel(4), 150);
+	Car c(Engine(1), Wheel(1), Wheel(2), Wheel(3), Wheel(4), 150.0f);
 	std::cout << c << '\n';
 
 	Bicycle t(Wheel(5), Wheel(6), 300);
@@ -162,7 +171,7 @@ int main()
 	std::vector<Vehicle*> v;
 	v.push_back(new Car(Engine(5), Wheel(1), Wheel(2), Wheel(3), Wheel(4), 100));
 	v.push_back(new Car(Engine(7), Wheel(5), Wheel(6), Wheel(7), Wheel(8), 200));
-	v.push_back(new Car(Engine(2), Wheel(5), Wheel(6), Wheel(7), Wheel(8), 300));
+	v.push_back(new Car(Engine(2), Wheel(9), Wheel(10), Wheel(11), Wheel(12), 300));
 	v.push_back(new WaterVehicle(5000));
 
 	//Вывод элементов вектора 
